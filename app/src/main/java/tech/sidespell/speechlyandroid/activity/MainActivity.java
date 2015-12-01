@@ -1,5 +1,7 @@
 package tech.sidespell.speechlyandroid.activity;
 
+import android.content.res.AssetManager;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -29,6 +31,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
         // Set the appropriate listeners
         mBtnSwitch.setOnCheckedChangeListener(this);
+
+        // Set the font to the textview
+        AssetManager assetManager = getAssets();
+        Typeface     customFont   = Typeface.createFromAsset(assetManager, "fonts/SourceSansPro_Light.otf");
+        mTvTime.setTypeface(customFont);
     }
 
     @Override
