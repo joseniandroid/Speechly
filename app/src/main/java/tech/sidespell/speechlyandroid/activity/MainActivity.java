@@ -2,17 +2,33 @@ package tech.sidespell.speechlyandroid.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import tech.sidespell.speechlyandroid.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    private TextView     mTvTime;
+    private ToggleButton mBtnSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Finding all views
+        mTvTime = (TextView) findViewById(R.id.tvTime);
+        mBtnSwitch = (ToggleButton) findViewById(R.id.btnSwitch);
+
+        // Set the appropriate listeners
+        mBtnSwitch.setOnCheckedChangeListener(this);
     }
 
     @Override
@@ -35,5 +51,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (isChecked) {
+            Log.d(TAG, "onCheckedChanged: ON");
+        } else {
+            Log.d(TAG, "onCheckedChanged: OFF");
+        }
     }
 }
