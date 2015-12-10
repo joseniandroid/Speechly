@@ -4,11 +4,15 @@ import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -83,6 +87,19 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
             Log.d(TAG, "onCheckedChanged: ON");
+            // TODO: Create an alert dialog to ask user input
+
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View view = inflater.inflate(R.layout.user_input, null);
+
+            EditText etTimeInput = (EditText) view.findViewById(R.id.etTimeInput);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Please input a time")
+                    .setView(view)
+                    .setPositiveButton("OK", null)
+                    .setNegativeButton("Cancel", null)
+                    .show();
         } else {
             Log.d(TAG, "onCheckedChanged: OFF");
         }
