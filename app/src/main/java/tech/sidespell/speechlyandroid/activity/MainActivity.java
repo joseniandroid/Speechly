@@ -3,6 +3,7 @@ package tech.sidespell.speechlyandroid.activity;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -20,6 +21,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private TextView     mTvTime;
     private ToggleButton mBtnSwitch;
 
+    private long timeRemaining = 10000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,6 +39,22 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         AssetManager assetManager = getAssets();
         Typeface     customFont   = Typeface.createFromAsset(assetManager, "fonts/SourceSansPro_Light.otf");
         mTvTime.setTypeface(customFont);
+
+        final Handler handler = new Handler();
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                timeRemaining -= 1000;
+                mTvTime.setText(timeRemaining + "");
+
+                if (timeRemaining > 0) {
+                    handler.postDelayed(this, 1000);
+                }
+            }
+        };
+
+        handler.postDelayed(runnable, 1000);
     }
 
     @Override
