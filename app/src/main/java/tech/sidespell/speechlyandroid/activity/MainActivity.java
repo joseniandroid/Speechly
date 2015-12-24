@@ -89,6 +89,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
+            /*
+             1) the ON button was clicked by the user
+             2) show the dialog
+            */
             Log.d(TAG, "onCheckedChanged: ON");
             LayoutInflater inflater = LayoutInflater.from(this);
             View view = inflater.inflate(R.layout.user_input, null);
@@ -102,6 +106,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     .setNegativeButton("Cancel", this)
                     .show();
         } else {
+            /*
+            1) the OFF button was clicked by the user
+            2) if the timer is ON, stop it, reset time text to "00:00", set timeRemaining to 0
+            */
             Log.d(TAG, "onCheckedChanged: OFF");
         }
     }
@@ -110,6 +118,19 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void onClick(DialogInterface dialog, int which) {
         switch (which) {
             case DialogInterface.BUTTON_POSITIVE:
+                /*
+                 1) the user has clicked the OK button
+                 2) accept the input from the EditText
+                 3) if the input is valid, start the timer
+                 4) if the input is invalid, set time text to "00:00" and reset mTimeRemaining variable
+                 5) make the toggle button turned OFF
+                 6) the input cannot be null
+                 7) after removing extra blank spaces, it must have 5 characters
+                 Example "  05:23  "
+                 8) it must have a ':' at the center
+                 9) the first 2 are digits
+                 10) the last 2 are digits
+                */
                 Log.d(TAG, "OK Clicked with time input value of " + mEtTimeInput.getText().toString());
                 break;
 
