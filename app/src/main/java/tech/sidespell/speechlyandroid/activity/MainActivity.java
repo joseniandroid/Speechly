@@ -1,8 +1,10 @@
 package tech.sidespell.speechlyandroid.activity;
 
 import android.content.DialogInterface;
+import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
@@ -16,6 +18,8 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import java.io.IOException;
 
 import tech.sidespell.speechlyandroid.R;
 import tech.sidespell.speechlyandroid.controller.SpeechlyTimer;
@@ -64,7 +68,25 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             public void onTimerStopped() {
                 mTvTime.setText(getString(R.string.zero_time));
             }
+
+            @Override
+            public void onPlayNotification() {
+                Log.d(TAG, "onPlayNotification: at 30 time to play a sound");
+                playSound();
+            }
         };
+    }
+
+    private void playSound() {
+        try {
+            AssetFileDescriptor afd = getAssets().openFd("sounds/chinese_gong.mp3");
+            MediaPlayer mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(afd.getFileDescriptor());
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -105,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             new AlertDialog.Builder(this)
                     .setTitle(getString(R.string.text_enter_time))
                     .setView(view)
+                    .setCancelable(false)
                     .setPositiveButton(getString(R.string.text_ok), this)
                     .setNegativeButton(getString(R.string.text_cancel), this)
                     .show();

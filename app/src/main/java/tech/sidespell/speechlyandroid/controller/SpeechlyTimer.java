@@ -27,6 +27,7 @@ public abstract class SpeechlyTimer implements Runnable {
     private static final String TAG                  = SpeechlyTimer.class.getSimpleName();
     private static final int    TIME_INPUT_LENGTH    = 5;
     private static final int    COLON_INDEX_POSITION = 2;
+    private static final long   THIRTY_SECONDS       = 30000;
 
     private long    mTimeRemaining;
     private Handler mHandler;
@@ -111,6 +112,11 @@ public abstract class SpeechlyTimer implements Runnable {
             Log.d(TAG, "timeRemaining: " + mTimeRemaining / 1000);
 
             updateUI(mTimeRemaining);
+
+            if (mTimeRemaining == THIRTY_SECONDS) {
+                onPlayNotification();
+            }
+
             mTimeRemaining -= 1000;
 
             if (mTimeRemaining >= 0) {
@@ -126,4 +132,6 @@ public abstract class SpeechlyTimer implements Runnable {
     public abstract void onTimerFinished();
 
     public abstract void onTimerStopped();
+
+    public abstract void onPlayNotification();
 }
