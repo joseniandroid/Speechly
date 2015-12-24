@@ -1,5 +1,6 @@
 package tech.sidespell.speechlyandroid.activity;
 
+import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -18,12 +19,14 @@ import android.widget.ToggleButton;
 
 import tech.sidespell.speechlyandroid.R;
 
-public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,
+        DialogInterface.OnClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private TextView     mTvTime;
     private ToggleButton mBtnSwitch;
+    private EditText     mEtTimeInput;
 
     private long timeRemaining = 10000;
 
@@ -87,21 +90,32 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (isChecked) {
             Log.d(TAG, "onCheckedChanged: ON");
-            // TODO: Create an alert dialog to ask user input
-
             LayoutInflater inflater = LayoutInflater.from(this);
             View view = inflater.inflate(R.layout.user_input, null);
 
-            EditText etTimeInput = (EditText) view.findViewById(R.id.etTimeInput);
+            mEtTimeInput = (EditText) view.findViewById(R.id.etTimeInput);
 
             new AlertDialog.Builder(this)
                     .setTitle("Please input a time")
                     .setView(view)
-                    .setPositiveButton("OK", null)
-                    .setNegativeButton("Cancel", null)
+                    .setPositiveButton("OK", this)
+                    .setNegativeButton("Cancel", this)
                     .show();
         } else {
             Log.d(TAG, "onCheckedChanged: OFF");
+        }
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        switch (which) {
+            case DialogInterface.BUTTON_POSITIVE:
+                Log.d(TAG, "OK Clicked with time input value of " + mEtTimeInput.getText().toString());
+                break;
+
+            case DialogInterface.BUTTON_NEGATIVE:
+                Log.d(TAG, "Cancel clicked");
+                break;
         }
     }
 }
