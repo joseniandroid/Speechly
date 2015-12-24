@@ -1,19 +1,20 @@
 package tech.sidespell.speechlyandroid.controller;
 
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
  * What are all the things this Timer has
- * <p>
+ * <p/>
  * Instance Variables
  * - It knows how much time it has remaining.
  * - It knows whether it is running or stopped.
- * <p>
+ * <p/>
  * Constructor: What it needs to run
  * - a Handler
  * - an optional remaining time in long or String format
- * <p>
+ * <p/>
  * What it does?
  * - capable of starting
  * - capable of stopping
@@ -23,7 +24,9 @@ import android.util.Log;
  */
 public abstract class SpeechlyTimer implements Runnable {
 
-    private static final String TAG = SpeechlyTimer.class.getSimpleName();
+    private static final String TAG                  = SpeechlyTimer.class.getSimpleName();
+    private static final int    TIME_INPUT_LENGTH    = 5;
+    private static final int    COLON_INDEX_POSITION = 2;
 
     private long    mTimeRemaining;
     private Handler mHandler;
@@ -35,6 +38,37 @@ public abstract class SpeechlyTimer implements Runnable {
     public SpeechlyTimer(Handler handler, long timeRemaining) {
         mHandler = handler;
         mTimeRemaining = timeRemaining;
+    }
+
+    public static boolean isValidInput(String time) {
+        if (TextUtils.isEmpty(time)) {
+            return false;
+        }
+
+        String trimmedInput = time.trim();
+        return trimmedInput.length() == TIME_INPUT_LENGTH &&
+                trimmedInput.indexOf(':') == COLON_INDEX_POSITION;
+    }
+
+    public static long convertToMilliseconds(String time) {
+        try {
+            int minutes = Integer.parseInt(time.substring(0, COLON_INDEX_POSITION));
+            int seconds = Integer.parseInt(time.substring(COLON_INDEX_POSITION + 1, time.length()));
+            return (long) ((minutes * 60 + seconds) * 1000);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    public static String convertToString(long time) {
+        int totalSeconds = (int) (time / 1000);
+        int minutes      = totalSeconds / 60;
+        int seconds      = totalSeconds % 60;
+
+        String minutesString = (minutes < 10) ? "0" + minutes : minutes + "";
+        String secondsString = (seconds < 10) ? "0" + seconds : seconds + "";
+
+        return minutesString + ":" + secondsString;
     }
 
     public void start() {
@@ -54,8 +88,12 @@ public abstract class SpeechlyTimer implements Runnable {
 
         if (mTimeRemaining >= 0) {
             mHandler.postDelayed(this, 1000);
+        } else {
+            onTimerStopped();
         }
     }
 
     public abstract void updateUI(long timeRemaining);
+
+    public abstract void onTimerStopped();
 }

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,9 +23,7 @@ import tech.sidespell.speechlyandroid.controller.SpeechlyTimer;
 public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,
         DialogInterface.OnClickListener {
 
-    private static final String TAG               = MainActivity.class.getSimpleName();
-    private static final int TIME_INPUT_LENGTH    = 5;
-    private static final int COLON_INDEX_POSITION = 2;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private TextView     mTvTime;
     private ToggleButton mBtnSwitch;
@@ -55,7 +52,12 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         mTimer = new SpeechlyTimer(handler) {
             @Override
             public void updateUI(long timeRemaining) {
-                mTvTime.setText(timeRemaining + "");
+                mTvTime.setText(SpeechlyTimer.convertToString(timeRemaining));
+            }
+
+            @Override
+            public void onTimerStopped() {
+                mBtnSwitch.setChecked(false);
             }
         };
     }
@@ -96,10 +98,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             mEtTimeInput = (EditText) view.findViewById(R.id.etTimeInput);
 
             new AlertDialog.Builder(this)
-                    .setTitle("Please input a time")
+                    .setTitle(getString(R.string.text_enter_time))
                     .setView(view)
-                    .setPositiveButton("OK", this)
-                    .setNegativeButton("Cancel", this)
+                    .setPositiveButton(getString(R.string.text_ok), this)
+                    .setNegativeButton(getString(R.string.text_cancel), this)
                     .show();
         } else {
             /*
@@ -128,36 +130,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                  10) the last 2 are digits
                 */
                 String input = mEtTimeInput.getText().toString();
-                if (!TextUtils.isEmpty(input)) {
-                    String trimmedInput = input.trim();
-
-                    int colonIndex = trimmedInput.indexOf(':');
-
-                    if (trimmedInput.length() == TIME_INPUT_LENGTH &&
-                            colonIndex == COLON_INDEX_POSITION) {
-                        /*
-                         input      0   5   :   2   3
-                         position   0   1   2   3   4
-                        */
-
-                        try {
-                            int minutes = Integer.parseInt(trimmedInput.substring(
-                                    0, COLON_INDEX_POSITION));
-
-                            int seconds = Integer.parseInt(trimmedInput.substring(
-                                    COLON_INDEX_POSITION + 1, trimmedInput.length()));
-
-                            long milliseconds = (minutes * 60 + seconds) * 1000;
-
-                            Log.d(TAG, String.format("%d minutes | %d seconds | %d milliseconds",
-                                    minutes, seconds, milliseconds));
-
-                            mTimer.setTimeRemaining(milliseconds);
-                            mTimer.start();
-                        } catch (NumberFormatException e) {
-                            // input is invalid number here
-                        }
-                    }
+                if (SpeechlyTimer.isValidInput(input)) {
+                    mTimer.setTimeRemaining(SpeechlyTimer.convertToMilliseconds(input));
+                    mTimer.start();
                 }
                 break;
 
