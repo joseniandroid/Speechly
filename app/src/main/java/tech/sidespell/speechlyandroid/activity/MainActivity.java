@@ -56,8 +56,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             }
 
             @Override
-            public void onTimerStopped() {
+            public void onTimerFinished() {
                 mBtnSwitch.setChecked(false);
+            }
+
+            @Override
+            public void onTimerStopped() {
+                mTvTime.setText(getString(R.string.zero_time));
             }
         };
     }
@@ -109,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             2) if the timer is ON, stop it, reset time text to "00:00", set timeRemaining to 0
             */
             Log.d(TAG, "onCheckedChanged: OFF");
+            mTimer.stop();
         }
     }
 
@@ -133,11 +139,19 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 if (SpeechlyTimer.isValidInput(input)) {
                     mTimer.setTimeRemaining(SpeechlyTimer.convertToMilliseconds(input));
                     mTimer.start();
+                } else {
+                    mBtnSwitch.setChecked(false);
                 }
                 break;
 
             case DialogInterface.BUTTON_NEGATIVE:
+                /*
+                 1) the user has clicked the Cancel button
+                 2) set the time text to "00:00" and reset the timeRemainingVariable to 0
+                 3) make the toggle button OFF
+                */
                 Log.d(TAG, "Cancel clicked");
+                mBtnSwitch.setChecked(false);
                 break;
         }
     }

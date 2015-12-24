@@ -30,6 +30,7 @@ public abstract class SpeechlyTimer implements Runnable {
 
     private long    mTimeRemaining;
     private Handler mHandler;
+    private boolean isKilled;
 
     public SpeechlyTimer(Handler handler) {
         mHandler = handler;
@@ -46,16 +47,35 @@ public abstract class SpeechlyTimer implements Runnable {
         }
 
         String trimmedInput = time.trim();
-        return trimmedInput.length() == TIME_INPUT_LENGTH &&
-                trimmedInput.indexOf(':') == COLON_INDEX_POSITION;
+        if (trimmedInput.length() == TIME_INPUT_LENGTH &&
+                trimmedInput.indexOf(':') == COLON_INDEX_POSITION) {
+            try {
+                int totalDuration = extractTotalDuration(time);
+                return totalDuration > 30;
+            } catch (NumberFormatException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    public static int extractMinutes(String time) throws NumberFormatException {
+        return Integer.parseInt(time.substring(0, COLON_INDEX_POSITION));
+    }
+
+    public static int extractSeconds(String time) throws NumberFormatException {
+        return Integer.parseInt(time.substring(COLON_INDEX_POSITION + 1, time.length()));
+    }
+
+    public static int extractTotalDuration(String time) throws NumberFormatException {
+        return extractMinutes(time) * 60 + extractSeconds(time);
     }
 
     public static long convertToMilliseconds(String time) {
         try {
-            int minutes = Integer.parseInt(time.substring(0, COLON_INDEX_POSITION));
-            int seconds = Integer.parseInt(time.substring(COLON_INDEX_POSITION + 1, time.length()));
-            return (long) ((minutes * 60 + seconds) * 1000);
+            return (long) (extractTotalDuration(time) * 1000);
         } catch (NumberFormatException e) {
+            Log.d(TAG, "convertToMilliseconds: " + e);
             return 0;
         }
     }
@@ -72,7 +92,13 @@ public abstract class SpeechlyTimer implements Runnable {
     }
 
     public void start() {
+        isKilled = false;
         mHandler.postDelayed(this, 1000);
+    }
+
+    public void stop() {
+        isKilled = true;
+        onTimerStopped();
     }
 
     public void setTimeRemaining(long timeRemaining) {
@@ -81,19 +107,23 @@ public abstract class SpeechlyTimer implements Runnable {
 
     @Override
     public void run() {
-        Log.d(TAG, "timeRemaining: " + mTimeRemaining / 1000);
+        if (!isKilled) {
+            Log.d(TAG, "timeRemaining: " + mTimeRemaining / 1000);
 
-        updateUI(mTimeRemaining);
-        mTimeRemaining -= 1000;
+            updateUI(mTimeRemaining);
+            mTimeRemaining -= 1000;
 
-        if (mTimeRemaining >= 0) {
-            mHandler.postDelayed(this, 1000);
-        } else {
-            onTimerStopped();
+            if (mTimeRemaining >= 0) {
+                mHandler.postDelayed(this, 1000);
+            } else {
+                onTimerFinished();
+            }
         }
     }
 
     public abstract void updateUI(long timeRemaining);
+
+    public abstract void onTimerFinished();
 
     public abstract void onTimerStopped();
 }
