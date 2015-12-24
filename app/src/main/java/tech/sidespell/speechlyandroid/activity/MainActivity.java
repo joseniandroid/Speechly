@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import tech.sidespell.speechlyandroid.R;
+import tech.sidespell.speechlyandroid.controller.SpeechlyTimer;
 
 public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,
         DialogInterface.OnClickListener {
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private ToggleButton mBtnSwitch;
     private EditText     mEtTimeInput;
 
-    private long timeRemaining = 10000;
+    private SpeechlyTimer mTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,20 +52,12 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         mTvTime.setTypeface(customFont);
 
         final Handler handler = new Handler();
-
-        Runnable runnable = new Runnable() {
+        mTimer = new SpeechlyTimer(handler) {
             @Override
-            public void run() {
-                timeRemaining -= 1000;
+            public void updateUI(long timeRemaining) {
                 mTvTime.setText(timeRemaining + "");
-
-                if (timeRemaining > 0) {
-                    handler.postDelayed(this, 1000);
-                }
             }
         };
-
-        handler.postDelayed(runnable, 1000);
     }
 
     @Override
@@ -158,6 +151,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
                             Log.d(TAG, String.format("%d minutes | %d seconds | %d milliseconds",
                                     minutes, seconds, milliseconds));
+
+                            mTimer.setTimeRemaining(milliseconds);
+                            mTimer.start();
                         } catch (NumberFormatException e) {
                             // input is invalid number here
                         }
